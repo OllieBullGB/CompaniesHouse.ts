@@ -1,23 +1,25 @@
 import * as dotenv from 'dotenv';
 
-import { getCompany, getRegisteredOfficeAddress } from '../Company';
 import { Company, Address } from '../Types';
+import { CompaniesHouse } from '../index';
 
 describe('Company.getCompany', () =>
 {
     dotenv.config();
     const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
 
     test('Company.getCompany returns a Company object', async () =>
     {
-        const data: Company = await getCompany('00000006', CH_API_KEY);
+        const data: Company = await ch.Companies.getCompany('00000006');
 
         expect(data).toBeDefined();
     });
 
     test('Company.getCompany returns a valid Company object', async () =>
     {
-        const data: Company = await getCompany('00000006', CH_API_KEY);
+        const data: Company = await ch.Companies.getCompany('00000006');
 
         expect(data.companyName).toBeDefined();
         expect(data.companyNumber).toBeDefined();
@@ -43,7 +45,7 @@ describe('Company.getCompany', () =>
 
     test('Company.getCompany returns the correct Company object', async () =>
     {
-        const data: Company = await getCompany('00000006', CH_API_KEY);
+        const data: Company = await ch.Companies.getCompany('00000006');
 
         expect(data.companyName).toBe('MARINE AND GENERAL MUTUAL LIFE ASSURANCE SOCIETY');
         expect(data.companyNumber).toBe('00000006');
@@ -82,12 +84,12 @@ describe('Company.getCompany', () =>
 
     test('Company.getCompany throws an error when the company number is invalid', async () =>
     {
-        await expect(getCompany('00000000', CH_API_KEY)).rejects.toThrowError('Error: 404');
+        await expect(ch.Companies.getCompany('00000000')).rejects.toThrowError('Error: 404');
     });
 
     test('Company.getCompany throws an error when the API key is invalid', async () =>
     {
-        await expect(getCompany('00000006', 'INVALID_API_KEY')).rejects.toThrowError('Error: 401');
+        await expect(invalidCh.Companies.getCompany('00000006')).rejects.toThrowError('Error: 401');
     });
 })
 
@@ -95,17 +97,19 @@ describe('Company.getRegisteredOfficeAddress', () =>
 {
     dotenv.config();
     const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
 
     test('Company.getRegisteredOfficeAddress returns a RegisteredOfficeAddress object', async () =>
     {
-        const data: Address = await getRegisteredOfficeAddress('00000006', CH_API_KEY);
+        const data: Address = await ch.Companies.getRegisteredOfficeAddress('00000006');
 
         expect(data).toBeDefined();
     });
 
     test('Company.getRegisteredOfficeAddress returns a valid RegisteredOfficeAddress object', async () =>
     {
-        const data: Address = await getRegisteredOfficeAddress('00000006', CH_API_KEY);
+        const data: Address = await ch.Companies.getRegisteredOfficeAddress('00000006');
 
         expect(data.addressLine1).toBeDefined();
         expect(data.addressLine2).toBeDefined();
@@ -116,7 +120,7 @@ describe('Company.getRegisteredOfficeAddress', () =>
 
     test('Company.getRegisteredOfficeAddress returns the correct RegisteredOfficeAddress object', async () =>
     {
-        const data: Address = await getRegisteredOfficeAddress('00000006', CH_API_KEY);
+        const data: Address = await ch.Companies.getRegisteredOfficeAddress('00000006');
 
         expect(data.addressLine1).toBe('Cms Cameron Mckenna Llp Cannon Place');
         expect(data.addressLine2).toBe('78 Cannon Street');
@@ -127,11 +131,11 @@ describe('Company.getRegisteredOfficeAddress', () =>
 
     test('Company.getRegisteredOfficeAddress throws an error when the company number is invalid', async () =>
     {
-        await expect(getRegisteredOfficeAddress('00000000', CH_API_KEY)).rejects.toThrowError('Error: 404');
+        await expect(ch.Companies.getRegisteredOfficeAddress('00000000')).rejects.toThrowError('Error: 404');
     });
 
     test('Company.getRegisteredOfficeAddress throws an error when the API key is invalid', async () =>
     {
-        await expect(getRegisteredOfficeAddress('00000006', 'INVALID_API_KEY')).rejects.toThrowError('Error: 401');
+        await expect(invalidCh.Companies.getRegisteredOfficeAddress('00000006')).rejects.toThrowError('Error: 401');
     });
 });

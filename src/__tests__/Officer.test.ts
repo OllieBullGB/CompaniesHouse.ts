@@ -2,21 +2,24 @@ import * as dotenv from 'dotenv';
 
 import { getCompanyOfficer, getCompanyOfficers, getOfficerAppointments, getOfficerAppointmentsByNumber } from '../Officer';
 import { CompanyOfficers, Officer, OfficerAppointment, OfficerSearchOptions } from '../Types';
+import { CompaniesHouse } from '../index';
 
 
 describe('Officer.getCompanyOfficers', () =>
 {
     dotenv.config();
     const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
 
     test('Officer.getCompanyOfficers returns a CompanyOfficers object', async () =>
     {
-        const data: CompanyOfficers = await getCompanyOfficers('00000006', CH_API_KEY);
+        const data: CompanyOfficers = await ch.Officers.getCompanyOfficers('00000006');
     });
 
     test('Officer.getCompanyOfficers returns a valid CompanyOfficers object', async () =>
     {
-        const data: CompanyOfficers = await getCompanyOfficers('00000006', CH_API_KEY);
+        const data: CompanyOfficers = await ch.Officers.getCompanyOfficers('00000006');
 
         expect(data.self).toBeDefined();
         expect(data.activeCount).toBeDefined();
@@ -28,7 +31,7 @@ describe('Officer.getCompanyOfficers', () =>
 
     test('Officer.getCompanyOfficers returns the correct CompanyOfficers object', async () =>
     {
-        const data: CompanyOfficers = await getCompanyOfficers('00000006', CH_API_KEY);
+        const data: CompanyOfficers = await ch.Officers.getCompanyOfficers('00000006');
 
         expect(data.self).toBe('/company/00000006/officers');
         expect(data.activeCount).toBe(0);
@@ -48,12 +51,12 @@ describe('Officer.getCompanyOfficers', () =>
     
     test('Officer.getCompanyOfficers throws an error when the company number is invalid', async () =>
     {
-        await expect(getCompanyOfficers('00000000', CH_API_KEY)).rejects.toThrowError('Error: 404');
+        await expect(ch.Officers.getCompanyOfficers('00000000')).rejects.toThrowError('Error: 404');
     });
 
     test('Officer.getCompanyOfficers throws an error when the API key is invalid', async () =>
     {
-        await expect(getCompanyOfficers('00000006', 'INVALID_API_KEY')).rejects.toThrowError('Error: 401');
+        await expect(invalidCh.Officers.getCompanyOfficers('00000006')).rejects.toThrowError('Error: 401');
     });
 
     test('Officer.getCompanyOfficers returns the correct number of officers when numOfficers is specified', async () =>
@@ -63,7 +66,7 @@ describe('Officer.getCompanyOfficers', () =>
             numOfficers: 2,
         }
 
-        const data: CompanyOfficers = await getCompanyOfficers('00000006', CH_API_KEY, options);
+        const data: CompanyOfficers = await ch.Officers.getCompanyOfficers('00000006', options);
 
         expect(data.officers.length).toBe(2);
     });
@@ -75,7 +78,7 @@ describe('Officer.getCompanyOfficers', () =>
             numOfficers: -1,
         }
 
-        await expect(getCompanyOfficers('00000006', CH_API_KEY, options)).rejects.toThrowError('Error: 400 numOfficers must be greater than 0');
+        await expect(ch.Officers.getCompanyOfficers('00000006', options)).rejects.toThrowError('Error: 400 numOfficers must be greater than 0');
     });
 });
 
@@ -84,22 +87,19 @@ describe('Officer.getCompanyOfficer', () =>
 {
     dotenv.config();
     const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
 
     test('Officer.getCompanyOfficer returns an Officer object', async () =>
     {
-        const data: Officer = await getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', CH_API_KEY);
+        const data: Officer = await ch.Officers.getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y');
 
         expect(data).toBeDefined();
     });
 
-    /**
-     * Weird bug where the second Officer.getCompanyOfficer call fails with a 404 error, needs further investigation
-     * 
-     * Noting that if the above test suite isn't run, this test passes
-     */
     test('Officer.getCompanyOfficer returns a valid Officer object', async () =>
     {
-        const data: Officer = await getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', CH_API_KEY);
+        const data: Officer = await ch.Officers.getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y');
 
         expect(data.links).toBeDefined();
         expect(data.links.self).toBeDefined();
@@ -114,7 +114,7 @@ describe('Officer.getCompanyOfficer', () =>
     
     test('Officer.getCompanyOfficer returns the correct Officer object', async () =>
     {
-        const data: Officer = await getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', CH_API_KEY);
+        const data: Officer = await ch.Officers.getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y');
 
         expect(data.links).toBeDefined();
         expect(data.links.self).toBe('/company/00000006/appointments/XOgtPRCRE8PPQnrxSg_ccYmmR7Y');
@@ -133,17 +133,17 @@ describe('Officer.getCompanyOfficer', () =>
 
     test('Officer.getCompanyOfficer throws an error when the company number is invalid', async () =>
     {
-        await expect(getCompanyOfficer('00000000', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', CH_API_KEY)).rejects.toThrowError('Error: 404');
+        await expect(ch.Officers.getCompanyOfficer('00000000', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y')).rejects.toThrowError('Error: 404');
     });
 
     test('Officer.getCompanyOfficer throws an error when the officer ID is invalid', async () =>
     {
-        await expect(getCompanyOfficer('00000006', 'INVALID_OFFICER_ID', CH_API_KEY)).rejects.toThrowError('Error: 404');
+        await expect(ch.Officers.getCompanyOfficer('00000006', 'INVALID_OFFICER_ID')).rejects.toThrowError('Error: 404');
     });
 
     test('Officer.getCompanyOfficer throws an error when the API key is invalid', async () =>
     {
-        await expect(getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', 'INVALID_API_KEY')).rejects.toThrowError('Error: 401');
+        await expect(invalidCh.Officers.getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y')).rejects.toThrowError('Error: 401');
     });
     
 });
@@ -154,17 +154,19 @@ describe('Officer.getOfficerAppointmentsByNumber', () =>
 {
     dotenv.config();
     const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
 
     test('Officer.getOfficerAppointmentsByNumber returns an array of OfficerAppointment objects', async () =>
     {
-        const data: Array<OfficerAppointment> = await getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY', CH_API_KEY);
+        const data: Array<OfficerAppointment> = await ch.Officers.getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY');
 
         expect(data).toBeDefined();
     });
 
     test('Officer.getOfficerAppointmentsByNumber returns the correct array of valid OfficerAppointment objects', async () =>
     {
-        const data: Array<OfficerAppointment> = await getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY', CH_API_KEY);
+        const data: Array<OfficerAppointment> = await ch.Officers.getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY');
 
         expect(data.length).toBe(5);
 
@@ -188,24 +190,24 @@ describe('Officer.getOfficerAppointmentsByNumber', () =>
 
     test('Officer.getOfficerAppointmentsByNumber throws an error when the officer number is invalid', async () =>
     {
-        await expect(getOfficerAppointmentsByNumber('INVALID_OFFICER_NUMBER', CH_API_KEY)).rejects.toThrowError('Error: 404');
+        await expect(ch.Officers.getOfficerAppointmentsByNumber('INVALID_OFFICER_NUMBER')).rejects.toThrowError('Error: 404');
     });
 
     test('Officer.getOfficerAppointmentsByNumber throws an error when the API key is invalid', async () =>
     {
-        await expect(getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY', 'INVALID_API_KEY')).rejects.toThrowError('Error: 401');
+        await expect(invalidCh.Officers.getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY')).rejects.toThrowError('Error: 401');
     });
 
     test('Officer.getOfficerAppointmentsByNumber returns the correct number of appointments when numAppointments is specified', async () =>
     {
-        const data: Array<OfficerAppointment> = await getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY', CH_API_KEY, {numAppointments: 2});
+        const data: Array<OfficerAppointment> = await ch.Officers.getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY', {numAppointments: 2});
 
         expect(data.length).toBe(2);
     });
 
     test('Officer.getOfficerAppointmentsByNumber throws an error when the number of appointments is invalid', async () =>
     {
-        await expect(getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY', CH_API_KEY, {numAppointments: -1})).rejects.toThrowError('Error: 400 numAppointments must be greater than 0');
+        await expect(ch.Officers.getOfficerAppointmentsByNumber('hNUQLeH2UwFsrvlRkX1fDE07xIY', {numAppointments: -1})).rejects.toThrowError('Error: 400 numAppointments must be greater than 0');
     });
 
     
