@@ -26,7 +26,7 @@ export const getCompanyOfficers = async (companyNumber: string, CH_API_KEY: stri
 
     if(registerView && registerType === null)
     {
-        throw new Error('Error: 400 registerType must be either \'directors\',  \'secretaries\' or \'llp-members\' if registerView is true');
+        throw new Error('Error: 400 registerType must be of enum OfficerRole');
     }
 
     const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyNumber}/officers?items_per_page=${numOfficers}&register_view=${registerView}&register_type=${registerType}&order_by=${orderBy}`, CH_API_KEY);
