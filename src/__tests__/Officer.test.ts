@@ -1,6 +1,5 @@
 import * as dotenv from 'dotenv';
 
-import { getCompanyOfficer, getCompanyOfficers, getOfficerAppointments, getOfficerAppointmentsByNumber } from '../Officer';
 import { CompanyOfficers, Officer, OfficerAppointment, OfficerSearchOptions } from '../Types';
 import { CompaniesHouse } from '../index';
 

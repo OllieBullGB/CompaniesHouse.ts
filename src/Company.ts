@@ -1,91 +1,100 @@
 import { Company, Address, Accounts } from './Types';
 import { useFetch } from './Fetch';
 
-export const getCompany = async (companyNumber: string, CH_API_KEY: string): Promise<Company> =>
+export class CCompany
 {
-    const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyNumber}`, CH_API_KEY);
+    _CH_API_KEY: string;
 
-    const companyAddress: Address =
+    constructor(CH_API_KEY: string)
     {
-        addressLine1: data.registered_office_address.address_line_1,
-        addressLine2: data.registered_office_address.address_line_2,
-        locality: data.registered_office_address.locality,
-        country: data.registered_office_address.country,
-        postalCode: data.registered_office_address.postal_code
+        this._CH_API_KEY = CH_API_KEY;
     }
 
-    const companyAccounts: Accounts =
+    getCompany = async (companyNumber: string): Promise<Company> =>
     {
-        accountingReferenceDate:
-        {
-            day: data.accounts.accounting_reference_date.day,
-            month: data.accounts.accounting_reference_date.month,
-        },
-        lastAccounts:
-        {
-            madeUpTo: data.accounts.last_accounts.made_up_to,
-            type: data.accounts.last_accounts.type,
-            periodEndOn: data.accounts.last_accounts.period_end_on,
-        }
-    }
-
-    const company: Company =
-    {
-        companyNumber: data.company_number,
-        companyName: data.company_name,
-        type: data.type,
-        dateOfCreation: data.date_of_creation,
-        lastFullMembersListDate: data.last_full_members_list_date,
-        jurisdiction: data.jurisdiction,
-        registeredOfficeAddress: companyAddress,
-        accounts: companyAccounts,
-        sicCodes: data.sic_codes,
-        undeliverableRegisteredOfficeAddress: data.undeliverable_registered_office_address,
-        hasInsolvencyHistory: data.has_insolvency_history,
-        hasCharges: data.has_charges,
-        links: // Link to the current resource
-        {
-            self: data.links.self,
-            filingHistory: data.links.filing_history,
-            officers: data.links.officers,
-            charges: data.links.charges,
-        },
-        registeredOfficeIsInDispute: data.registered_office_is_in_dispute,
-        dateOfCessation: data.date_of_cessation,
-        canFile: data.can_file,
-    }
-
-    return company;
-}
-
-export const getRegisteredOfficeAddress = async (companyName: string, CH_API_KEY: string): Promise<Address> =>
-{
-    try
-    {
-        const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyName}/registered-office-address`, CH_API_KEY);
+        const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyNumber}`, this._CH_API_KEY);
 
         const companyAddress: Address =
         {
-            addressLine1: data.address_line_1,
-            addressLine2: data.address_line_2,
-            locality: data.locality,
-            country: data.country,
-            postalCode: data.postal_code
+            addressLine1: data.registered_office_address.address_line_1,
+            addressLine2: data.registered_office_address.address_line_2,
+            locality: data.registered_office_address.locality,
+            country: data.registered_office_address.country,
+            postalCode: data.registered_office_address.postal_code
         }
 
-        return companyAddress;
+        const companyAccounts: Accounts =
+        {
+            accountingReferenceDate:
+            {
+                day: data.accounts.accounting_reference_date.day,
+                month: data.accounts.accounting_reference_date.month,
+            },
+            lastAccounts:
+            {
+                madeUpTo: data.accounts.last_accounts.made_up_to,
+                type: data.accounts.last_accounts.type,
+                periodEndOn: data.accounts.last_accounts.period_end_on,
+            }
+        }
+
+        const company: Company =
+        {
+            companyNumber: data.company_number,
+            companyName: data.company_name,
+            type: data.type,
+            dateOfCreation: data.date_of_creation,
+            lastFullMembersListDate: data.last_full_members_list_date,
+            jurisdiction: data.jurisdiction,
+            registeredOfficeAddress: companyAddress,
+            accounts: companyAccounts,
+            sicCodes: data.sic_codes,
+            undeliverableRegisteredOfficeAddress: data.undeliverable_registered_office_address,
+            hasInsolvencyHistory: data.has_insolvency_history,
+            hasCharges: data.has_charges,
+            links: // Link to the current resource
+            {
+                self: data.links.self,
+                filingHistory: data.links.filing_history,
+                officers: data.links.officers,
+                charges: data.links.charges,
+            },
+            registeredOfficeIsInDispute: data.registered_office_is_in_dispute,
+            dateOfCessation: data.date_of_cessation,
+            canFile: data.can_file,
+        }
+
+        return company;
     }
-    catch(error: any)
+
+    getRegisteredOfficeAddress = async (companyName: string): Promise<Address> =>
     {
-        // If the company number is invalid, the API returns a 500 error, instead of an expected 404 error
-        if(error.message === 'Error: 500')
+        try
         {
-            throw new Error('Error: 404');
+            const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyName}/registered-office-address`, this._CH_API_KEY);
+
+            const companyAddress: Address =
+            {
+                addressLine1: data.address_line_1,
+                addressLine2: data.address_line_2,
+                locality: data.locality,
+                country: data.country,
+                postalCode: data.postal_code
+            }
+
+            return companyAddress;
         }
-        else // For all other errors, rethrow the error
+        catch(error: any)
         {
-            throw error;
+            // If the company number is invalid, the API returns a 500 error, instead of an expected 404 error
+            if(error.message === 'Error: 500')
+            {
+                throw new Error('Error: 404');
+            }
+            else // For all other errors, rethrow the error
+            {
+                throw error;
+            }
         }
     }
-    
 }
