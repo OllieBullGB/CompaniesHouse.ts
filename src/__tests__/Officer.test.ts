@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { getCompanyOfficer, getCompanyOfficers, getOfficerAppointments, getOfficerAppointmentsByNumber } from '../Officer';
 import { CompanyOfficers, Officer, OfficerAppointment, OfficerSearchOptions } from '../Types';
 
+
 describe('Officer.getCompanyOfficers', () =>
 {
     dotenv.config();
@@ -76,16 +77,6 @@ describe('Officer.getCompanyOfficers', () =>
 
         await expect(getCompanyOfficers('00000006', CH_API_KEY, options)).rejects.toThrowError('Error: 400 numOfficers must be greater than 0');
     });
-
-    test('Officer.getCompanyOfficers throws an error when registerView is active and registerType is invalid', async () =>
-    {
-        const options: OfficerSearchOptions =
-        {
-            registerView: true
-        }
-
-        await expect(getCompanyOfficers('00000006', CH_API_KEY, options))
-    });
 });
 
 
@@ -103,9 +94,9 @@ describe('Officer.getCompanyOfficer', () =>
 
     /**
      * Weird bug where the second Officer.getCompanyOfficer call fails with a 404 error, needs further investigation
+     * 
+     * Noting that if the above test suite isn't run, this test passes
      */
-
-     
     test('Officer.getCompanyOfficer returns a valid Officer object', async () =>
     {
         const data: Officer = await getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', CH_API_KEY);
@@ -120,7 +111,7 @@ describe('Officer.getCompanyOfficer', () =>
         
     });
     
-
+    
     test('Officer.getCompanyOfficer returns the correct Officer object', async () =>
     {
         const data: Officer = await getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', CH_API_KEY);
@@ -154,7 +145,10 @@ describe('Officer.getCompanyOfficer', () =>
     {
         await expect(getCompanyOfficer('00000006', 'XOgtPRCRE8PPQnrxSg_ccYmmR7Y', 'INVALID_API_KEY')).rejects.toThrowError('Error: 401');
     });
+    
 });
+
+
 
 describe('Officer.getOfficerAppointmentsByNumber', () =>
 {
@@ -216,3 +210,4 @@ describe('Officer.getOfficerAppointmentsByNumber', () =>
 
     
 });
+
