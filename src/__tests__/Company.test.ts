@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { Company, Address, Charges, Charge } from '../Types';
-import { CompaniesHouse } from '../index';
+import CompaniesHouse from '../index';
 
 describe('Company.getCompany', () =>
 {

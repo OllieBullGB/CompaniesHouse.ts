@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
 
 import { CompanyOfficers, Officer, OfficerAppointment, OfficerSearchOptions } from '../Types';
-import { CompaniesHouse } from '../index';
+import CompaniesHouse from '../index';
 
 
 describe('Officer.getCompanyOfficers', () =>
