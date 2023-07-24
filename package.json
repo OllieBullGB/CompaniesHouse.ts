@@ -1,13 +1,16 @@
 {
-  "name": "companieshouseapi",
+  "name": "companies-house-pda",
   "type": "module",
   "version": "1.0.0",
-  "description": "A fully typed TypeScript wrapper for the UK companies house API",
-  "main": "lib/index.js",
+  "description": "A type-safe TypeScript wrapper for the UK Companies House Public Data API",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "testcoverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "build": "tsc",
+    "build": "npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc",
+    "build:cjs": "tsc --module commonjs --outDir dist/cjs",
     "start": "node lib/index.js",
     "typedoc": "typedoc src/index.ts src/Company.ts src/Officer.ts src/Types.ts src/Fetch.ts --out docs"
   },
@@ -30,6 +33,6 @@
     "typescript": "^5.1.6"
   },
   "files": [
-    "lib/**/*"
+    "dist"
   ]
 }

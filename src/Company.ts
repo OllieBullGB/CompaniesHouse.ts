@@ -1,4 +1,4 @@
-import { Company, Address, Accounts } from './Types';
+import { Company, Address, Accounts, Charges, Charge, Transaction } from './Types';
 import { useFetch } from './Fetch';
 
 export class CCompany
@@ -8,6 +8,20 @@ export class CCompany
     constructor(CH_API_KEY: string)
     {
         this._CH_API_KEY = CH_API_KEY;
+    }
+
+    public async ValidateCompanyNumber(companyNumber: string): Promise<boolean>
+    {
+        try
+        {
+            const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyNumber}`, this._CH_API_KEY);
+
+            return true;
+        }
+        catch(e: any)
+        {
+            return false;
+        }
     }
 
     getCompany = async (companyNumber: string): Promise<Company> =>
@@ -96,5 +110,97 @@ export class CCompany
                 throw error;
             }
         }
+    }
+
+    hasRegisters = async (companyName: string): Promise<boolean> =>
+    {
+        try
+        {
+            const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyName}/registers`, this._CH_API_KEY);
+            return true;
+        }
+        catch(e: any)
+        {
+            return false;
+        }
+    }
+
+    /**
+     * I can't find any documentation on this endpoint, so I'm not sure what it's supposed to return
+     */
+    getRegisters = async (companyName: string): Promise<any> =>
+    {
+        const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyName}/registers`, this._CH_API_KEY);
+        return data;
+    }
+
+    getCharges = async (companyName: string): Promise<Charges> =>
+    {
+        const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyName}/charges`, this._CH_API_KEY);
+
+        const mappedCharges: Array<Charge> = data.items.map((charge: any) => CCompany.dataToCharge(charge));
+
+        const charges: Charges =
+        {
+            totalCount: data.total_count,
+            satisfiedCount: data.satisfied_count,
+            partSatisfiedCount: data.part_satisfied_count,
+            unfilteredCount: data.unfiltered_count,
+            charges: mappedCharges,
+        }
+
+        return charges;
+    }
+
+    getCharge = async (companyName: string, chargeId: string): Promise<Charge> =>
+    {
+        const data: any = await useFetch(`https://api.company-information.service.gov.uk/company/${companyName}/charges/${chargeId}`, this._CH_API_KEY);
+
+        const charge: Charge = CCompany.dataToCharge(data);
+
+        return charge;
+    }
+
+    private static dataToCharge = (data: any): Charge =>
+    {
+        const transactions: Array<Transaction> = data.transactions.map((transaction: any) => CCompany.dataToTransaction(transaction));
+
+
+        const charge: Charge =  
+        {
+            chargeNumber: data.charge_number,
+            personsEntitled: data.persons_entitled,
+            status: data.status,
+            type: data.classification.type,
+            description: data.classification.description,
+            deliveredOn: data.delivered_on,
+            createdOn: data.created_on,
+            self: data.links.self,
+            particulars: 
+            {
+                type: data.particulars.type,
+                description: data.particulars.description,
+            },
+            securedDetails: 
+            {
+                type: data.secured_details.type,
+                description: data.secured_details.description,
+            },
+            transactions: transactions,
+        };
+
+        return charge;
+    }
+
+    private static dataToTransaction = (data: any): Transaction =>
+    {
+        const transaction: Transaction =
+        {
+            type: data.filing_type,
+            deliveredOn: data.delivered_on,
+            filing: data.links.filing
+        }
+
+        return transaction;
     }
 }

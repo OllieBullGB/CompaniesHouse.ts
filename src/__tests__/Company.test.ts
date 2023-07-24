@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { Company, Address } from '../Types';
+import { Company, Address, Charges, Charge } from '../Types';
 import { CompaniesHouse } from '../index';
 
 describe('Company.getCompany', () =>
@@ -137,5 +137,100 @@ describe('Company.getRegisteredOfficeAddress', () =>
     test('Company.getRegisteredOfficeAddress throws an error when the API key is invalid', async () =>
     {
         await expect(invalidCh.Companies.getRegisteredOfficeAddress('00000006')).rejects.toThrowError('Error: 401');
+    });
+});
+
+describe('Company.hasCompanyRegisters', () =>
+{
+    dotenv.config();
+    const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
+
+    test('Company.hasCompanyRegisters returns a boolean', async () =>
+    {
+        const data: boolean = await ch.Companies.hasRegisters('00000006');
+
+        expect(data).toBeDefined();
+    });
+
+    /**
+     * I can't find any documentation on this endpoint, so I'm not sure what it's supposed to return
+    test('Company.hasCompanyRegisters returns true when the company has registers', async () =>
+    {
+        const data: boolean = await ch.Companies.hasCompanyRegisters('00000006');
+
+        expect(data).toBe(true);
+    });
+    */
+
+    test('Company.hasCompanyRegisters returns false when the company does not have registers', async () =>
+    {
+        const data: boolean = await ch.Companies.hasRegisters('00000006');
+
+        expect(data).toBe(false);
+    });
+});
+
+describe('Company.getCharges', () =>
+{
+    dotenv.config();
+    const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
+
+    test('Company.getCharges returns a Charges object', async () =>
+    {
+        const data: any = await ch.Companies.getCharges('00000006');
+
+        expect(data).toBeDefined();
+    });
+
+    test('Company.getCharges returns a valid Charges object', async () =>
+    {
+        const data: Charges = await ch.Companies.getCharges('00000006');
+
+        expect(data.totalCount).toBeDefined();
+        expect(data.satisfiedCount).toBeDefined();
+        expect(data.partSatisfiedCount).toBeDefined();
+        expect(data.unfilteredCount).toBeDefined();
+        expect(data.charges).toBeDefined();
+    });
+
+    test('Company.getCharges returns the correct Charges object', async () =>
+    {
+        const data: Charges = await ch.Companies.getCharges('00000006');
+
+        expect(data.totalCount).toBe(1);
+        expect(data.satisfiedCount).toBe(0);
+        expect(data.partSatisfiedCount).toBe(0);
+        expect(data.unfilteredCount).toBe(1);
+        expect(data.charges.length).toBe(1);
+    });
+
+    test('Company.getCharges throws an error when the company number is invalid', async () =>
+    {
+        await expect(ch.Companies.getCharges('00000000')).rejects.toThrowError('Error: 404');
+    });
+
+    test('Company.getCharges throws an error when the API key is invalid', async () =>
+    {
+        await expect(invalidCh.Companies.getCharges('00000006')).rejects.toThrowError('Error: 401');
+    });
+});
+
+describe('Company.getCharge', () =>
+{
+    dotenv.config();
+    const CH_API_KEY: string = process.env.CH_API_KEY || '';
+    const ch: CompaniesHouse = new CompaniesHouse(CH_API_KEY);
+    const invalidCh: CompaniesHouse = new CompaniesHouse('INVALID_API_KEY');
+
+
+    test('Company.getCharge returns a Charge object', async () =>
+    {
+        const data: Charge = await ch.Companies.getCharge('00000006', 'MzE5NjUwMDg4OWFkaXF6a2N4');
+
+        expect(data).toBeDefined();
     });
 });

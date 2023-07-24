@@ -125,3 +125,42 @@ export type CompanyOfficers =
     totalCount: number,
     officers: Array<Officer>,
 }
+
+export type Charges =
+{
+    totalCount: number,
+    satisfiedCount: number,
+    partSatisfiedCount: number,
+    unfilteredCount: number,
+    charges: Array<Charge>
+}
+
+export type Charge =
+{
+    chargeNumber: string,
+    personsEntitled: Array<string>,
+    status: string,
+    type: string,
+    description: string,
+    deliveredOn: string,
+    createdOn: string,
+    self: string, // Link to the current resource
+    particulars:
+    {
+        type: string,
+        description: string,
+    },
+    securedDetails:
+    {
+        type: string,
+        description: string,
+    },
+    transactions: Array<Transaction>
+}
+
+export type Transaction =
+{
+    type: string,
+    deliveredOn: string,
+    filing: string
+}
